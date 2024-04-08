@@ -1,7 +1,7 @@
 {
     "model_type": "gpt2",
     "config_name":"gpt2-medium" ,
-    "tokenizer_name":"../spm_tokenizer_neologdn_bytefallback_nofast" ,
+    "tokenizer_name":"spm_tokenizer_neologdn_bytefallback_nofast" ,
     "train_file":"../wiki.txt",
     "validation_split_percentage":5,
     "output_dir":"checkpoints-mistral-300M-FA2",
