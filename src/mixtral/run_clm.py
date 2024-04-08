@@ -50,8 +50,8 @@ from transformers import (
     default_data_collator,
     is_torch_tpu_available,
     set_seed,
-    MistralForCausalLM,
-    MistralConfig
+    MixtralForCausalLM,
+    MixtralConfig
 )
 from transformers.testing_utils import CaptureLogger
 from transformers.trainer_utils import get_last_checkpoint
@@ -441,8 +441,7 @@ def main():
             if model_args.torch_dtype in ["auto", None]
             else getattr(torch, model_args.torch_dtype)
         )
-
-        model = MistralForCausalLM.from_pretrained(
+        model = MixtralForCausalLM.from_pretrained(
             model_args.model_name_or_path,
             from_tf=bool(".ckpt" in model_args.model_name_or_path),
             config=config,
@@ -459,21 +458,21 @@ def main():
         def load_config_from_json(config_file):
             with open(config_file, 'r') as f:
                 config = json.load(f)
-                config = MistralConfig.from_dict(config)
+                config = MixtralConfig.from_dict(config)
             return config
 
-        # model = AutoModelForCausalLM.from_config(config, trust_remote_code=model_args.trust_remote_code)
-        config = load_config_from_json(config_file = os.path.join(os.path.dirname(__file__),"config.json"))
-        # model = MistralForCausalLM(config)
-        #refer:https://github.com/huggingface/transformers/issues/21610
 
-        model = MistralForCausalLM.from_pretrained(pretrained_model_name_or_path=None,
+        config = load_config_from_json(config_file = os.path.join(os.path.dirname(__file__),"config.json"))
+        # ref: https://huggingface.co/mistralai/Mixtral-8x7B-Instruct-v0.1/blob/main/config.json#L19
+
+
+        model = MixtralForCausalLM.from_pretrained(pretrained_model_name_or_path=None,
                                                     config=config,
                                                     state_dict=OrderedDict(),
                                                     use_flash_attention_2=True)
 
-        print("mistral config:",config)
-        print("mistral model architecture:",model)
+        print("mixtral config:",config)
+        print("mixtral model architecture:",model)
         n_params = sum({p.data_ptr(): p.numel() for p in model.parameters()}.values())
         logger.info(f"Training new model from scratch - Total size={n_params/2**20:.2f}M params")
 

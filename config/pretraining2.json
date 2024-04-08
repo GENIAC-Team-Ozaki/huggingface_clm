@@ -1,9 +1,9 @@
 {
     "model_type": "gpt2",
     "config_name":"gpt2-medium" ,
-    "tokenizer_name":"../spm_tokenizer_neologdn_bytefallback_nofast" ,
+    "tokenizer_name":"spm_tokenizer_neologdn_bytefallback_nofast" ,
     "dataset_name":"wikipedia",
-    "dataset_config_name":"20220301.en",
+    "dataset_config_name":"20220301.ja",
     "validation_split_percentage":5,
     "output_dir":"checkpoints-mistral-300M-FA2",
     "do_train":true,
