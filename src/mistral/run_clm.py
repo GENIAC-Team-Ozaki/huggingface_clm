@@ -32,6 +32,8 @@ from typing import Optional
 import json
 from collections import OrderedDict
 
+import wandb
+
 import datasets
 import evaluate
 import torch

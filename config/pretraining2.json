@@ -6,6 +6,7 @@
     "dataset_config_name":"20220301.en",
     "validation_split_percentage":5,
     "output_dir":"checkpoints",
+    "report_to":"wandb",
     "do_train":true,
     "do_eval":true,
     "prediction_loss_only":true,
