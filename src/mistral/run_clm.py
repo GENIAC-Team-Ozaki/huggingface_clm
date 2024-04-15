@@ -80,6 +80,8 @@ class WandbConfig:
     """
     wandb_project: str = field(default=None, metadata={"help": "The name of the W&B project to log to."})
     wandb_username: str = field(default=None, metadata={"help": "The W&B username or team/organization name under which the project will be logged."})
+    wandb_dir: Optional[str] = field(default=None, metadata={"help": "The directory where W&B logs will be stored."})
+    wandb_run_name: Optional[str] = field(default=None, metadata={"help": "The name of the W&B run."})
 
     def __post_init__(self):
         if self.wandb_project is None or self.wandb_username is None:
@@ -280,7 +282,13 @@ def main():
     
     # Weight & Biases logging
     # https://wandb.ai/home
-    wandb.init(project=wandb_args.wandb_project, entity=wandb_args.wandb_username)
+    # https://docs.wandb.ai/ref/python/init
+    wandb.init(
+        project=wandb_args.wandb_project, 
+        entity=wandb_args.wandb_username,
+        dir=wandb_args.wandb_dir,
+        name=wandb_args.wandb_run_name
+        )
     wandb.config.update(training_args)
 
     if model_args.use_auth_token is not None:
