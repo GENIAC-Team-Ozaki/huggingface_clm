@@ -48,6 +48,10 @@ wandb login
 deepspeed --no_local_rank src/mistral/run_clm.py config/pretraining3.json --deepspeed --deepspeed_config config/ds_config_zero3.json --master_port 33333
 ```
 
+```python
+sbatch src/mistral/mistral_job_script.sh
+```
+
 ### Mixtral
 ```python
 deepspeed --no_local_rank src/mixtral/run_clm.py config/pretraining3.json --deepspeed --deepspeed_config config/ds_config_zero3.json --master_port 33333

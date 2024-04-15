@@ -1,6 +1,8 @@
 {
     "wandb_project":"huggingface_deepspeed",
     "wandb_username":"toma_tanaka",
+    "wandb_dir":"/home/ext_ulti4929_gmail_com/huggingface_deepspeed/logs/wandb",
+    "wandb_run_name":"mistral_test",
     "model_type": "gpt2",
     "config_name":"gpt2-medium" ,
     "tokenizer_name":"/home/ext_ulti4929_gmail_com/huggingface_deepspeed/data/huggingface_tokenizer",
