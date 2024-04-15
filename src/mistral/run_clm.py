@@ -61,6 +61,7 @@ from transformers.utils import check_min_version, send_example_telemetry
 from transformers.utils.versions import require_version
 
 
+
 # Will error if the minimal version of Transformers is not installed. Remove at your own risks.
 check_min_version("4.35.0")
 
@@ -72,7 +73,19 @@ logger = logging.getLogger(__name__)
 MODEL_CONFIG_CLASSES = list(MODEL_FOR_CAUSAL_LM_MAPPING.keys())
 MODEL_TYPES = tuple(conf.model_type for conf in MODEL_CONFIG_CLASSES)
 
+@dataclass
+class WandbConfig:
+    """
+    Data class for storing Weights & Biases configuration.
+    """
+    wandb_project: str = field(default=None, metadata={"help": "The name of the W&B project to log to."})
+    wandb_username: str = field(default=None, metadata={"help": "The W&B username or team/organization name under which the project will be logged."})
 
+    def __post_init__(self):
+        if self.wandb_project is None or self.wandb_username is None:
+            raise ValueError("Both wandb_project and wandb_username must be specified.")
+            
+            
 @dataclass
 class ModelArguments:
     """
@@ -232,6 +245,10 @@ class DataTrainingArguments:
     keep_linebreaks: bool = field(
         default=True, metadata={"help": "Whether to keep line breaks when using TXT files or not."}
     )
+    extension: str = field(
+        default=None,
+        metadata={"help": "The extension of the dataset files (e.g., 'jsonl', 'csv', 'txt')."}
+    )
 
     def __post_init__(self):
         if self.streaming:
@@ -242,24 +259,29 @@ class DataTrainingArguments:
         else:
             if self.train_file is not None:
                 extension = self.train_file.split(".")[-1]
-                assert extension in ["csv", "json", "txt"], "`train_file` should be a csv, a json or a txt file."
+                assert extension in ["csv", "json", "txt", "jsonl"], "`train_file` should be a csv, a json or a txt file."
             if self.validation_file is not None:
                 extension = self.validation_file.split(".")[-1]
-                assert extension in ["csv", "json", "txt"], "`validation_file` should be a csv, a json or a txt file."
+                assert extension in ["csv", "json", "txt", "jsonl"], "`validation_file` should be a csv, a json or a txt file."
 
 
-def main():
+def main(): 
     # See all possible arguments in src/transformers/training_args.py
     # or by passing the --help flag to this script.
     # We now keep distinct sets of args, for a cleaner separation of concerns.
 
-    parser = HfArgumentParser((ModelArguments, DataTrainingArguments, TrainingArguments))
+    parser = HfArgumentParser((ModelArguments, DataTrainingArguments, TrainingArguments, WandbConfig))
     # if len(sys.argv) == 2 and sys.argv[1].endswith(".json"):
     #     # If we pass only one argument to the script and it's the path to a json file,
     #     # let's parse it to get our arguments.
-    model_args, data_args, training_args = parser.parse_json_file(json_file=os.path.abspath(sys.argv[1]))
+    model_args, data_args, training_args, wandb_args = parser.parse_json_file(json_file=os.path.abspath(sys.argv[1]))
     # else:
     #     model_args, data_args, training_args = parser.parse_args_into_dataclasses()
+    
+    # Weight & Biases logging
+    # https://wandb.ai/home
+    wandb.init(project=wandb_args.wandb_project, entity=wandb_args.wandb_username)
+    wandb.config.update(training_args)
 
     if model_args.use_auth_token is not None:
         warnings.warn(
@@ -367,6 +389,8 @@ def main():
         if extension == "txt":
             extension = "text"
             dataset_args["keep_linebreaks"] = data_args.keep_linebreaks
+        elif extension == "jsonl":
+            extension = "json"
         raw_datasets = load_dataset(
             extension,
             data_files=data_files,
@@ -465,7 +489,7 @@ def main():
             return config
 
         # model = AutoModelForCausalLM.from_config(config, trust_remote_code=model_args.trust_remote_code)
-        config = load_config_from_json(config_file = os.path.join(os.path.dirname(__file__),"config.json"))
+        config = load_config_from_json(config_file = os.path.join(os.path.dirname(__file__),"model.json"))
         # model = MistralForCausalLM(config)
         #refer:https://github.com/huggingface/transformers/issues/21610
 
@@ -495,7 +519,21 @@ def main():
 
     # since this will be pickled to avoid _LazyModule error in Hasher force logger loading before tokenize_function
     tok_logger = transformers.utils.logging.get_logger("transformers.tokenization_utils_base")
-
+    
+    def tokenize_function(examples):
+        with CaptureLogger(tok_logger) as cl:
+            if isinstance(examples[text_column_name][0], str):
+                output = tokenizer(examples[text_column_name])
+            else:
+                output = tokenizer([json.dumps(e) for e in examples[text_column_name]])
+        if "Token indices sequence length is longer than the" in cl.out:
+            tok_logger.warning(
+                "^^^^^^^^^^^^^^^^ Please ignore the warning above - this long input will be chunked into smaller bits"
+                " before being passed to the model."
+            )
+        return output
+        
+    """
     def tokenize_function(examples):
         with CaptureLogger(tok_logger) as cl:
             output = tokenizer(examples[text_column_name])
@@ -506,6 +544,7 @@ def main():
                 " before being passed to the model."
             )
         return output
+    """
 
     with training_args.main_process_first(desc="dataset map tokenization"):
         if not data_args.streaming:
@@ -625,6 +664,7 @@ def main():
         preprocess_logits_for_metrics=preprocess_logits_for_metrics
         if training_args.do_eval and not is_torch_tpu_available()
         else None,
+        report_to="wandb"
     )
 
     # Training

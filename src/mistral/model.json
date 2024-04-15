@@ -20,5 +20,5 @@
     "torch_dtype": "float16",
     "transformers_version": "4.35.2",
     "use_cache": true,
-    "vocab_size": 50257
+    "vocab_size": 32000
 }

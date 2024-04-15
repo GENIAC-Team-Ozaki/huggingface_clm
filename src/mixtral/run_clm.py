@@ -462,7 +462,7 @@ def main():
             return config
 
 
-        config = load_config_from_json(config_file = os.path.join(os.path.dirname(__file__),"config.json"))
+        config = load_config_from_json(config_file = os.path.join(os.path.dirname(__file__),"model.json"))
         # ref: https://huggingface.co/mistralai/Mixtral-8x7B-Instruct-v0.1/blob/main/config.json#L19
 
 
