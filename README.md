@@ -1,11 +1,10 @@
-# clm_deepspeed
-HuggingFaceを利用した事前学習およびFine Tuningの実装コード
+# HuggingFace+DeepSpeedの事前学習，Fine Tuningのコード
+
+※2024/4/16...Mistralのみ実行確認済み
 
 
 - 環境構築
-    - ジョブの実行
     - ジョブの確認
-    - 各種インストール
 - 事前学習
     - Mistral
     - Mixtral
@@ -18,48 +17,51 @@ HuggingFaceを利用した事前学習およびFine Tuningの実装コード
     - SentencePiece形式からHuggingFace形式への変換
 
 ## 環境構築
-- ジョブの実行
+```
+# Minicondaのダウンロード
+wget https://repo.anaconda.com/miniconda/Miniconda3-py310_23.10.0-1-Linux-x86_64.sh
 
-```python
-srun --partition g2 --nodes=1 --gpus-per-node=1 --time=03:00:00 -c 12 --pty bash -i
+# ダウンロードしたMinicondaの環境作成
+bash Miniconda3-py310_23.10.0-1-Linux-x86_64.sh
+
+# 仮想環境作成
+conda create -n myenv python=3.9
+
+# 仮想環境に入る
+conda activate myenv
+
+# 必要なものをインストール
+# 初回のみ以下を実行
+conda install nvidia/label/cuda-11.8.0::cuda-toolkit
+pip install -r requirements.txt
+pip install flash-attn==2.3.4 --no-build-isolation
+
+# wandbにログイン
+wandb login
 ```
 
 - ジョブの確認
 [ジョブについての説明](https://github.com/matsuolab/ucllm_nedo_prod/blob/main/infra/README.md#cancel-a-job)
 ```
+# ジョブが実行されている確認
 squeue
 ```
 
-- 各種インストール
-```
-wget https://repo.anaconda.com/miniconda/Miniconda3-py310_23.10.0-1-Linux-x86_64.sh
-bash Miniconda3-py310_23.10.0-1-Linux-x86_64.sh
-conda create -n myenv python=3.9
-conda activate myenv
-conda install nvidia/label/cuda-11.8.0::cuda-toolkit
-pip install -r requirements.txt
-pip install flash-attn==2.3.4 --no-build-isolation
-wandb login
-```
 
 ## 事前学習
 ### Mistral
 ```python
-deepspeed --no_local_rank src/mistral/run_clm.py config/pretraining3.json --deepspeed --deepspeed_config config/ds_config_zero3.json --master_port 33333
-```
-
-```python
-sbatch src/mistral/mistral_job_script.sh
+sbatch src/pretraining_job_script.sh mistral
 ```
 
 ### Mixtral
 ```python
-deepspeed --no_local_rank src/mixtral/run_clm.py config/pretraining3.json --deepspeed --deepspeed_config config/ds_config_zero3.json --master_port 33333
+sbatch src/pretraining_job_script.sh mixtral
 ```
 
 ### Dense
 ```python
-deepspeed --no_local_rank src/dense/run_clm.py config/pretraining3.json --deepspeed --deepspeed_config config/ds_config_zero3.json --master_port 33333
+sbatch src/pretraining_job_script.sh dense
 ```
 
 
@@ -67,17 +69,17 @@ deepspeed --no_local_rank src/dense/run_clm.py config/pretraining3.json --deepsp
 ### Mistral
 
 ```python
-deepspeed --no_local_rank src/mistral/run_clm.py config/fine_tuning.json --deepspeed --deepspeed_config config/ds_config_zero3.json --master_port 33333
+sbatch src/finetuning_job_script.sh mistral
 ```
 
 ### Mixtral
 ```python
-deepspeed --no_local_rank src/mixtral/run_clm.py config/fine_tuning.json --deepspeed --deepspeed_config config/ds_config_zero3.json --master_port 33333
+sbatch src/finetuning_job_script.sh mixtral
 ```
 
 ### Dense
 ```python
-deepspeed --no_local_rank src/dense/run_clm.py config/fine_tuning.json --deepspeed --deepspeed_config config/ds_config_zero3.json --master_port 33333
+sbatch src/finetuning_job_script.sh dense
 ```
 
 
