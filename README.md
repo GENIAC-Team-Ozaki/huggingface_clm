@@ -39,6 +39,7 @@ conda activate myenv
 conda install nvidia/label/cuda-11.8.0::cuda-toolkit
 pip install -r requirements.txt
 pip install flash-attn==2.3.4 --no-build-isolation
+wandb login
 ```
 
 ## 事前学習
