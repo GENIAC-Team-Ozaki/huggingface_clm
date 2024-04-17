@@ -1,4 +1,4 @@
-# HuggingFace+DeepSpeedの事前学習，Fine Tuningのコード
+# HuggingFace+DeepSpeedの事前学習，Fine Tuning
 
 ※2024/4/16...Mistralのみ実行確認済み
 
@@ -30,8 +30,10 @@ conda create -n myenv python=3.9
 # 仮想環境に入る
 conda activate myenv
 
+
+# 以下は初回のみ実行
+
 # 必要なものをインストール
-# 初回のみ以下を実行
 conda install nvidia/label/cuda-11.8.0::cuda-toolkit
 pip install -r requirements.txt
 pip install flash-attn==2.3.4 --no-build-isolation
@@ -40,11 +42,14 @@ pip install flash-attn==2.3.4 --no-build-isolation
 wandb login
 ```
 
-- ジョブの確認
+- ジョブ
 [ジョブについての説明](https://github.com/matsuolab/ucllm_nedo_prod/blob/main/infra/README.md#cancel-a-job)
 ```
 # ジョブが実行されている確認
 squeue
+
+# ジョブの終了
+scancel JOBID
 ```
 
 
