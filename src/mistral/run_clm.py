@@ -116,7 +116,12 @@ class ModelArguments:
         },
     )
     config_name: Optional[str] = field(
-        default=None, metadata={"help": "Pretrained config name or path if not the same as model_name"}
+        default=None, 
+        metadata={"help": "Pretrained config name or path if not the same as model_name"}
+    )
+    config_file: Optional[str] = field(
+        default=None,
+        metadata={"help": "Path to a JSON configuration file if you want to load a custom configuration"}
     )
     tokenizer_name: Optional[str] = field(
         default=None, metadata={"help": "Pretrained tokenizer name or path if not the same as model_name"}
@@ -497,7 +502,7 @@ def main():
             return config
 
         # model = AutoModelForCausalLM.from_config(config, trust_remote_code=model_args.trust_remote_code)
-        config = load_config_from_json(config_file = os.path.join(os.path.dirname(__file__),"model.json"))
+        config = load_config_from_json(config_file = model_args.config_file)
         # model = MistralForCausalLM(config)
         #refer:https://github.com/huggingface/transformers/issues/21610
 
