@@ -82,12 +82,13 @@ class WandbConfig:
     wandb_username: str = field(default=None, metadata={"help": "The W&B username or team/organization name under which the project will be logged."})
     wandb_dir: Optional[str] = field(default=None, metadata={"help": "The directory where W&B logs will be stored."})
     wandb_run_name: Optional[str] = field(default=None, metadata={"help": "The name of the W&B run."})
+    wandb_group: Optional[str] = field(default=None, metadata={"help": "The name of the W&B group."})
 
     def __post_init__(self):
         if self.wandb_project is None or self.wandb_username is None:
             raise ValueError("Both wandb_project and wandb_username must be specified.")
-            
-            
+
+
 @dataclass
 class ModelArguments:
     """
@@ -292,7 +293,8 @@ def main():
         project=wandb_args.wandb_project, 
         entity=wandb_args.wandb_username,
         dir=wandb_args.wandb_dir,
-        name=wandb_args.wandb_run_name
+        name=wandb_args.wandb_run_name,
+        group=wandb_args.wandb_group
         )
     wandb.config.update(training_args)
 

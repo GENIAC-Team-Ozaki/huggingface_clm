@@ -3,6 +3,7 @@
     "wandb_username":"toma_tanaka",
     "wandb_dir":"/persistentshare/storage/team_ozaki/personal/tanaka/wandb",
     "wandb_run_name":"mistral_100m",
+    "wandb_group":"20240423_1",
     "model_type": "gpt2",
     "config_name":"gpt2-medium",
     "config_file":"/home/ext_ulti4929_gmail_com/huggingface_deepspeed/src/mistral/model_100m.json",
